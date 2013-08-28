@@ -7,4 +7,6 @@
                  [ring "1.2.0"]
                  [compojure "1.1.5"]]
   :main url-shortener.core
+  :uberjar-name "url-shortener-standalone.jar"
+  :min-lein-version "2.0.0"
   :profiles {:uberjar {:aot :all}})
