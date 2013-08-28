@@ -6,6 +6,8 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [ring "1.2.0"]
                  [compojure "1.1.5"]]
+  :plugins [[lein-ring "0.8.6"]]
+  :ring {:handler url-shortener.core/app}
   :main url-shortener.core
   :uberjar-name "url-shortener-standalone.jar"
   :min-lein-version "2.0.0"
