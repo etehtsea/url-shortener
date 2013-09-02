@@ -2,6 +2,7 @@
   (:require [ring.adapter.jetty :refer [run-jetty]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.util.response]
+            [ring.middleware.json :refer [wrap-json-response]]
             [compojure.core :refer [GET PUT POST defroutes]]
             [compojure handler route])
   (:gen-class))
@@ -32,25 +33,28 @@
   (if-let [id (apply shorten! args)]
     {:status 201
      :headers {"Location" id}
-     :body (list "URL " url " assigned the short identifier " id)}
+     :body {:url url :id id}}
     {:status 409
-     :body (format "Short URL %s is already taken" id)}))
+     :body {:error (format "Short URL %s is already taken" id)}}))
 
 (defn redirect
   [id]
   (if-let [url (url-for id)]
     (ring.util.response/redirect url)
-    {:status 404 :body (str "No such short URL: " id)}))
+    {:status 404
+     :body {:error (format "No such short URL %s" id)}}))
 
 (defroutes app*
-  (GET "/" request "Welcome!")
+  (GET "/" [] (keys @mappings))
   (PUT "/:id" [id url] (retain url id))
   (POST "/" [url] (retain url))
   (GET "/:id" [id] (redirect id))
-  (GET "/list/" [] (interpose "\n" (keys @mappings)))
-  (compojure.route/not-found "Sorry, there's nothing here."))
+  (compojure.route/not-found {:body {:error "Sorry, there's nothing here."}}))
 
-(def app (compojure.handler/api app*))
+(def app
+  (-> app*
+      wrap-json-response
+      compojure.handler/api))
 
 (defn -main
   [& args]
