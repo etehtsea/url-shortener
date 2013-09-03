@@ -25,7 +25,7 @@
      :body {:error (format "No such short URL %s" id)}}))
 
 (defroutes app*
-  (GET "/" [] (keys (url/all)))
+  (GET "/" [] {:body (url/all)})
   (PUT "/:id" [id url] (retain url id))
   (POST "/" [url] (retain url))
   (GET "/:id" [id] (redirect id))
