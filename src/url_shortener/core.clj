@@ -31,8 +31,16 @@
   (GET "/:id" [id] (redirect id))
   (compojure.route/not-found {:body {:error "Sorry, there's nothing here."}}))
 
+(defn- wrap-cors [handler]
+  (fn [request]
+    (let [response (handler request)
+          headers (merge (:headers response)
+                         {"Access-Control-Allow-Origin" "*"})]
+      (assoc response :headers headers))))
+
 (def app
   (-> app*
+      wrap-cors
       wrap-json-response
       compojure.handler/api))
 
